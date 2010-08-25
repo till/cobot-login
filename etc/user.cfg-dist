@@ -1,0 +1,3 @@
+#!/bin/sh
+cobot_username=`whoami`
+cobot_pass="yourpass"
