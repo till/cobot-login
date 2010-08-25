@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+#
+# Author:  Till Klampaeckel <till@php.net>
+# License: New BSD License
+#
+
+#
+# HowTo:
+# * this is for ubuntu
+# * sudo ln -s /path/to/if.up/cobot /etc/network/if-up.d/sudo
+#
+
+if [ `uname -s` != "Linux" ]; then
+    echo "You are not on Linux."
+    exit 1
+fi
+
+ssid=`iwconfig wlan0 | grep ESSID | cut -d '"' -f 2`
+
+login_script="$(readlink -f $(dirname $0))/../login.sh"
+login_script=$(readlink -f $login_script)
+
+if [ "$ssid" = "co_up_n" -o "$ssid" = "co_up_bg" ]; then
+    $login_script
+fi
