@@ -23,4 +23,9 @@ login_script=$(readlink -f $login_script)
 
 if [ "$ssid" = "co_up_n" -o "$ssid" = "co_up_bg" ]; then
     $login_script
+    if [ "$?" -ne "0" ]; then
+        notify-send -u critical "Couldn't log you in."
+    else
+        notify-send -u normal "Captive portal login worked!"
+    fi
 fi
