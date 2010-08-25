@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # login.sh - automagically login to the cobot captive portal
 #
@@ -20,10 +20,17 @@ fi
 source `pwd`/etc/user.cfg
 source `pwd`/etc/space.cfg
 
-data="username=${cobot_username}&redirect_url=&auth_user=${cobot_username}${cobot_username_postfix}&accept=Log+In&account_type=${cobot_account_type}"
+cobot_pass="falsch"
 
-curl \
-    -X POST -s -o /dev/null \
-    -d $data \
-    --data-urlencode auth_pass="${cobot_pass}" \
-    $cobot_captiveportal_url
+data="username=${cobot_username}&redirect_url=&auth_user=${cobot_username}${cobot_username_postfix}&accept=Log+In&account_type=${cobot_account_type}"
+cmd="curl -X POST -w=%{response_code} -s -o /dev/null -d $data --data-urlencode auth_pass=${cobot_pass} $cobot_captiveportal_url"
+
+response=$($cmd)
+
+if [ "$response" = "=302" ]; then
+    echo "Great success!"
+    exit 0
+else
+    echo "Login failed."
+    exit 1
+fi
