@@ -3,6 +3,20 @@
 # login.sh - automagically login to the cobot captive portal
 #
 
+user_config=`pwd`/etc/user.cfg
+space_config=`pwd`/etc/space.cfg
+
+if [ ! -f $user_config ]; then
+    echo "Please create a user config: ${user_config}"
+    exit 1
+fi
+
+if [ ! -f $space_config ]; then
+    echo "Please create a space config: ${space_config}"
+    exit 1
+fi
+
+
 source `pwd`/etc/user.cfg
 source `pwd`/etc/space.cfg
 
