@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/usr/bin/env bash
 #
 # login.sh - automagically login to the cobot captive portal
 #
