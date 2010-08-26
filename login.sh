@@ -1,10 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # login.sh - automagically login to the cobot captive portal
 #
 
-user_config=`pwd`/etc/user.cfg
-space_config=`pwd`/etc/space.cfg
+#sed -x
+
+this_dir=$(dirname $0)
+
+user_config="${this_dir}/etc/user.cfg"
+space_config="${this_dir}/etc/space.cfg"
 
 if [ ! -f $user_config ]; then
     echo "Please create a user config: ${user_config}"
@@ -16,9 +20,8 @@ if [ ! -f $space_config ]; then
     exit 1
 fi
 
-
-source `pwd`/etc/user.cfg
-source `pwd`/etc/space.cfg
+source $user_config
+source $space_config
 
 data="username=${cobot_username}&redirect_url=&auth_user=${cobot_username}${cobot_username_postfix}&accept=Log+In&account_type=${cobot_account_type}"
 cmd="curl -X POST -w=%{response_code} -s -o /dev/null -d $data --data-urlencode auth_pass=${cobot_pass} $cobot_captiveportal_url"
