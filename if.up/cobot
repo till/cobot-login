@@ -5,11 +5,16 @@
 # License: New BSD License
 #
 
+#set -x
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
 #
 # HowTo:
 # * this is for ubuntu
-# * sudo ln -s /path/to/if.up/cobot /etc/network/if-up.d/sudo
+# * sudo ln -s /path/to/if.up/cobot /etc/network/if-up.d/cobot
 #
+
+notify-send -u normal "OHAI"
 
 if [ `uname -s` != "Linux" ]; then
     echo "You are not on Linux."
@@ -18,8 +23,10 @@ fi
 
 ssid=`iwconfig wlan0 | grep ESSID | cut -d '"' -f 2`
 
-login_script="$(readlink -f $(dirname $0))/../login.sh"
-login_script=$(readlink -f $login_script)
+#login_script="$(readlink -f $(dirname $0))/../login.sh"
+#login_script=$(readlink -f $login_script)
+
+login_script="/home/till/cobot-login/login.sh"
 
 if [ "$ssid" = "co_up_n" -o "$ssid" = "co_up_bg" ]; then
     $login_script
