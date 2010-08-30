@@ -11,6 +11,3 @@
 #
 
 cobot_space_name='co-up'
-cobot_account_type='user'
-cobot_username_postfix="%40${cobot_account_type}.${cobot_space_name}"
-cobot_captiveportal_url='http://192.168.2.1:8000'
