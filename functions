@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# generateFullCobotUsername name space
+getFullCobotUsername () {
+    local cobot_account_type='user'
+    local cobot_username_postfix="%40${cobot_account_type}.${2}"
+
+    echo "${1}${cobot_username_postfix}"
+}
+
+# work in progress
+findPasswordInKeyChain () {
+    security find-generic-password \
+           -l ${keychain_item_name} \
+           -g ${keychaing_name} 2>&1 \
+           | grep 'password:' \
+           | sed -e 's/password: "\(.*\)"/\1/' \
+           | tr -d "\n"
+}
+
+# discover the captive portal's url
+discoverCaptivePortal () {
+    local url=$(curl -w=%{redirect_url} -o /dev/null -s -I http://www.google.de/)
+
+    if [ "$url" = "=" ]; then
+        echo ""
+    fi
+
+    echo "${url:1}"
+}
