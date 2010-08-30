@@ -10,14 +10,8 @@ getFullCobotUsername () {
 
 # work in progress
 findPasswordInKeyChain () {
-    security find-generic-password \
-        -l ${keychain_item_name} \
-        -g ${keychaing_name} 2>&1 \
-        | grep 'password:' \
-        | sed -e 's/password: "\(.*\)"/\1/' \
-        | tr -d "\n"
-
-    # grep out
+    local pass=$(security find-generic-password -l ${keychain_item_name} -g ${keychaing_name} 2>&1 | grep 'password:' sed -e 's/password: "\(.*\)"/\1/' | tr -d "\n")
+    echo "${pass}"
 }
 
 # discover the captive portal's url
