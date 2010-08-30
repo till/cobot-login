@@ -30,34 +30,32 @@ elif [ `uname -s` = "Darwin" ]; then
     echo "Use the keychain! Not yet implemented."
     exit 1;
 
+    # figure out if running this as root causes issues ;)
+    # or how this works on macosx
+
+    cobot_username=$USER
+    keychain_item_name="${cobot_space_name}.cobot.me"
+    keychain_name="$HOME/Library/Keychains/$USER.keychain"
+
 else
 
     # do something else
-    echo "Unknown OS: $(uname -s)" 
+    echo "Unknown OS: $(uname -s)"
     exit 1
 
 fi
 
 source $space_config
 
-discoverCaptivePortal () {
-    local url=$(curl -w=%{redirect_url} -o /dev/null -s -I http://www.google.de/)
+source ./functions
 
-    if [ "$url" = "=" ]; then
-        echo ""
-    fi
-
-    echo "${url:1}"
-}
+user=$(getFullCobotUsername $cobot_username $cobot_space_name)
 
 cobot_captiveportal_url=$(discoverCaptivePortal)
 if [ "x${cobot_captiveportal_url}" = "x" ]; then
     echo "Logged in already."
     exit 0
 fi
-
-echo $cobot_captiveportal_url
-exit;
 
 data="username=${cobot_username}&redirect_url=&auth_user=${cobot_username}${cobot_username_postfix}&accept=Log+In&account_type=${cobot_account_type}"
 cmd="curl -X POST -w=%{response_code} -s -o /dev/null -d $data --data-urlencode auth_pass=${cobot_pass} $cobot_captiveportal_url"
