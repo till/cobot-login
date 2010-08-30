@@ -58,7 +58,7 @@ if [ "x${cobot_captiveportal_url}" = "x" ]; then
     exit 0
 fi
 
-data="username=${cobot_username}&redirect_url=&auth_user=${cobot_username}${cobot_username_postfix}&accept=Log+In&account_type=${cobot_account_type}"
+data="username=${cobot_username}&redirect_url=&auth_user=${user}&accept=Log+In&account_type=${cobot_account_type}"
 cmd="curl -X POST -w=%{response_code} -s -o /dev/null -d $data --data-urlencode auth_pass=${cobot_pass} $cobot_captiveportal_url"
 
 response=$($cmd)
