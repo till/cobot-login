@@ -32,6 +32,7 @@ elif [ `uname -s` = "Darwin" ]; then
 
     # figure out if running this as root causes issues ;)
     # or how this works on macosx
+    # keychain item needs to be configured (space name is not always the url)
 
     cobot_username=$USER
     keychain_item_name="${cobot_space_name}.cobot.me"
