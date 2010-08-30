@@ -38,6 +38,8 @@ elif [ `uname -s` = "Darwin" ]; then
     keychain_item_name="${cobot_space_name}.cobot.me"
     keychain_name="$HOME/Library/Keychains/$USER.keychain"
 
+    cobot_pass=$(findPasswordInKeyChain)
+
 else
 
     # do something else
