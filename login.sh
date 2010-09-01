@@ -50,7 +50,7 @@ fi
 
 source $space_config
 
-source ./functions
+source "${this_dir}/functions"
 
 user=$(getFullCobotUsername $cobot_username $cobot_space_name)
 
