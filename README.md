@@ -1,8 +1,8 @@
 # cobot-login
 
-This script logs you into [cobot][]'s captive portal. It's sort of like [Alexis][alex]' script (for MacOSX), but for Ubuntu.
+This script logs you into [cobot][]'s captive portal. It's sort of like [Alexis][alexis]' script (for Mac OS X), but for Ubuntu.
 
-[alex]: http://twitter.com/surryhill
+[alexis]: http://github.com/afh/
 [cobot]: http://cobot.me
 
 # Todo

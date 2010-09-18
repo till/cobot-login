@@ -11,3 +11,4 @@
 #
 
 cobot_space_name='co-up'
+cobot_space_ssids="co_up_n co_up_bg"

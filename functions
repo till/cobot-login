@@ -1,24 +1,38 @@
 #!/usr/bin/env bash
 
-# generateFullCobotUsername name space
+# generate full cobot username as required by captive portal login
 getFullCobotUsername () {
+    local cobot_user_name="${1}"
+    local cobot_space_name="${2}"
     local cobot_account_type='user'
-    local cobot_username_postfix="%40${cobot_account_type}.${2}"
+    local cobot_username_suffix="%40${cobot_account_type}.${cobot_space_name}"
 
-    echo "${1}${cobot_username_postfix}"
+    echo "${cobot_username}${cobot_username_suffix}"
 }
 
-# work in progress
-findPasswordInKeyChain () {
-    local pass=$(security find-generic-password -l ${keychain_item_name} -g ${keychaing_name} 2>&1 | grep 'password:' sed -e 's/password: "\(.*\)"/\1/' | tr -d "\n")
-    echo "${pass}"
+# return a password from the Mac OS X keychain
+# TODO: Improve keychain search for generic and internet passwords
+#       e.g. by adding support for account, label, and server matching
+getPasswordFromKeychain () {
+    local keychain_item_name="${1}"
+    local keychain_name="${2}"
+    local pass=$(security find-generic-password -l ${keychain_item_name} -g ${keychain_name} 2>&1 \
+      | sed -e '2,$d' -e 's/password: \"\(.*\)\"/\1/' \
+      | tr -d \"\n\")
+
+    echo -n "${pass}"
+}
+
+# return the password from the user.cfg
+getPasswordFromUserCfg () {
+    echo -n "${cobot_pass}"
 }
 
 # discover the captive portal's url
 discoverCaptivePortal () {
     local url=$(curl -w=%{redirect_url} -o /dev/null -s -I http://www.google.de/)
 
-    if [ "$url" = "=" ]; then
+    if [ "${url}" = "=" ]; then
         echo ""
     fi
 

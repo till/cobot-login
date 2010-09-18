@@ -10,29 +10,72 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
 
 #
 # HowTo:
-# * this is for ubuntu
-# * sudo ln -s /path/to/if.up/cobot /etc/network/if-up.d/cobot
+# * All:
+#   - edit cobot_login variable below to match your cobot-login installation
+#     path
 #
+# * Unbuntu:
+#   - sudo ln -s /path/to/if.up/cobot /etc/network/if-up.d/cobot
+#
+# * Darwin:
+#   - edit the CobotLogin variable in sentinel.rb to match your cobot-login
+#     installation path
+#   - run sentinel.rb from cobot-login
+#
+
+system_name=`uname -s`
+if [ "Darwin" = "${system_name}" ]; then
+notify-send() {
+  # shift off unsupported urgency level parameters
+  shift; shift
+  # TODO: check for growl or cmessage and default to osascript
+  osascript -e 'tell application "Finder"' \
+    -e "activate" \
+    -e "display dialog \"$*\"" \
+    -e 'end tell'  >/dev/null 2>&1 &
+}
+fi
 
 notify-send -u normal "OHAI"
 
-if [ `uname -s` != "Linux" ]; then
-    echo "You are not on Linux."
+case ${system_name} in
+  Linux|*BSD)
+    ssid=`iwconfig wlan0 | grep ESSID | cut -d '"' -f 2`
+  ;;
+
+  Darwin)
+    # this requires knowledge of the network device name, e.g. en1...
+    #ssid=$(networksetup -getairportnetwork en1 | cut -d: -f 2 | tr -d ' ')
+    # ... this doesn't ;)
+    ssid=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep '[^B]SSID' | cut -d: -f 2 | tr -d ' ')
+  ;;
+
+  *)
+    notify-send -u critical "The ${system_name} operating system is not supported"
     exit 1
-fi
+  ;;
+esac
 
-ssid=`iwconfig wlan0 | grep ESSID | cut -d '"' -f 2`
+#login_script="$(readlink -f $(dirname ${0}))/../login.sh"
+#login_script=$(readlink -f ${login_script})
 
-#login_script="$(readlink -f $(dirname $0))/../login.sh"
-#login_script=$(readlink -f $login_script)
+cobot_login="${HOME}/bin/cobot-login"
+login_script="${cobot_login}/login.sh"
+space_config="${cobot_login}/etc/space.cfg"
+source ${space_config}
 
-login_script="/home/till/cobot-login/login.sh"
+in_space=0
+for space_ssid in ${cobot_space_ssids}; do
+  [ "${ssid}" = "${space_ssid}" ] && in_space=1
+done
 
-if [ "$ssid" = "co_up_n" -o "$ssid" = "co_up_bg" ]; then
-    $login_script
+if [ ${in_space} -eq 1 ]; then
+    ${login_script}
     if [ "$?" -ne "0" ]; then
         notify-send -u critical "Couldn't log you in."
     else
         notify-send -u normal "Captive portal login worked!"
     fi
+else
+    notify-send -u normal "It seems you are not at a known coworking space."
 fi

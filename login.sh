@@ -3,69 +3,69 @@
 # login.sh - automagically login to the cobot captive portal
 #
 
-#sed -x
+#set -x
 
-this_dir=$(dirname $0)
+this_dir=$(dirname ${0})
+source "${this_dir}/functions"
 
-user_config="${this_dir}/etc/user.cfg"
 space_config="${this_dir}/etc/space.cfg"
-
-if [ ! -f $space_config ]; then
+if [ ! -f ${space_config} ]; then
     echo "Please create a space config: ${space_config}"
     exit 1
 fi
+source ${space_config}
 
-
-if [ `uname -s` = "Linux" -o `uname -s` = "FreeBSD" -o `uname -s` = "NetBSD" -o `uname -s` = "OpenBSD" ]; then
-
-    if [ ! -f $user_config ]; then
-        echo "Please create a user config: ${user_config}"
-        exit 1
-    fi
-
-    source $user_config
-
-elif [ `uname -s` = "Darwin" ]; then
-
-    echo "Use the keychain! Not yet implemented."
-    exit 1;
-
-    # figure out if running this as root causes issues ;)
-    # or how this works on macosx
-    # keychain item needs to be configured (space name is not always the url)
-
-    cobot_username=$USER
-    keychain_item_name="${cobot_space_name}.cobot.me"
-    keychain_name="$HOME/Library/Keychains/$USER.keychain"
-
-    cobot_pass=$(findPasswordInKeyChain)
-
-else
-
-    # do something else
-    echo "Unknown OS: $(uname -s)"
+user_config="${this_dir}/etc/user.cfg"
+if [ ! -f ${user_config} ]; then
+    echo "Please create a user config: ${user_config}"
     exit 1
-
 fi
+source ${user_config}
 
-source $space_config
+system_name=`uname -s`
+case ${system_name} in
+  Linux|*BSD)
+    password_cmd="getPasswordFromUserCfg"
+  ;;
 
-source "${this_dir}/functions"
+  Darwin)
+    password_cmd="getPasswordFromKeychain ${keychain_item_name} ${keychain_name}"
+  ;;
 
-user=$(getFullCobotUsername $cobot_username $cobot_space_name)
+  *)
+    # do something else
+    echo "The ${system_name} operating system is not supported"
+    exit 1
+  ;;
+esac
 
 cobot_captiveportal_url=$(discoverCaptivePortal)
 if [ "x${cobot_captiveportal_url}" = "x" ]; then
-    echo "Logged in already."
+    echo "Already logged in."
     exit 0
 fi
 
-data="username=${cobot_username}&redirect_url=&auth_user=${user}&accept=Log+In&account_type=${cobot_account_type}"
-cmd="curl -X POST -w=%{response_code} -s -o /dev/null -d $data --data-urlencode auth_pass=${cobot_pass} $cobot_captiveportal_url"
+cobot_account_type='user'
+cobot_auth_user=$(getFullCobotUsername ${cobot_username} ${cobot_space_name})
 
-response=$($cmd)
+login_cmd="curl -X POST
+    -w=%{response_code}
+    -s
+    -o /dev/null
+    -d username=${cobot_username}
+    -d redirect_url=
+    -d auth_user=${cobot_auth_user}
+    -d accept=Log+In
+    -d account_type=${cobot_account_type}
+    --data-urlencode auth_pass@-
+    ${cobot_captiveportal_url}"
 
-if [ "$response" = "=302" ]; then
+# pipe the password directly to the login command,
+# so it does not appear when displaying process information,
+# e.g. with ps -efa
+response=$(${password_cmd} | ${login_cmd})
+
+if [ "${response}" = "=302" ]; then
     echo "Great success!"
     exit 0
 else
